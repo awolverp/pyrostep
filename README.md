@@ -40,7 +40,7 @@ python3 -m pip install -U pyrostep
 # Learn
 to start with pyrostep, you have to do two steps:
 1. import pyrostep
-2. listen on which client you want
+2. listen on client which you want
 
 ```python
 import pyrostep
@@ -58,7 +58,7 @@ step handling have two methods:
 - `pyrostep.register_next_step(...)`
 - `pyrostep.unregister_steps(...)`
 
-`register_next_step` register next step, and `unregister_steps` removes step for user.
+`register_next_step` registers next step, and `unregister_steps` removes step for user.
 
 see example: ( [see examples]() )
 ```python
