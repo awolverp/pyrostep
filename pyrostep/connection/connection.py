@@ -18,10 +18,11 @@ def connection_max_retries(max_retries:int=None) -> typing.Optional[int]:
     Return:
         returns MAX_RETRIES if max_retries is None
     """
+    _attr = "MAX_RETRIES" if hasattr(Connection, "MAX_RETRIES") else "MAX_CONNECTION_ATTEMPTS"
     if not isinstance(max_retries, int):
-        return Connection.MAX_RETRIES
+        return getattr(Connection, _attr)
 
-    Connection.MAX_RETRIES = max_retries
+    setattr(Connection, _attr, max_retries)
 
 def invoke_max_retries(max_retries:int=None) -> typing.Optional[int]:
     """

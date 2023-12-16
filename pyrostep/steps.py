@@ -28,8 +28,6 @@ class MetaStore:
         """
         pass
 
-loop = asyncio.get_event_loop()
-
 class _RootStore(MetaStore, dict):
     def __init__(self, *args, **kwargs) -> None:
         self._event = asyncio.Event()
@@ -139,7 +137,7 @@ async def unregister_steps(id: int, store: MetaStore = None) -> None:
             u.cancel("cancelled")
 
 async def _wait_future(id: int, timeout: float, store: MetaStore) -> Update:
-    fn = loop.create_future()
+    fn = asyncio.get_event_loop().create_future()
 
     await store.set_item(id, fn)
 
