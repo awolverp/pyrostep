@@ -8,23 +8,12 @@ Pyrostep helps you to use pyrogram:
 - very easy step handling, waiting for answer, ...
 - change connection timeout, retries, etc.
 
+#### **Updated to 2.10.10**
+- **connection.connection_max_retries** AttributeError fixed.
+- **different loop error** fixed.
+
 #### **Updated to 2.10.8**
 - **connection.session_max_retries** completely changed.
-
-#### **Updated to 2.9.8**
-> Now pyrostep is fully asyncronized ...
-
-- **wait_for** bug fixed on Python v3.10.x.
-
-- **safe_idle** changed, now you dont need this.
-
-- **MetaStore.delete_item** removed.
-
-- **MetaStore.clear** changed.
-
-- **unregister_steps** bug fixed, now cancel `asyncio.Future` object.
-
-- **clear** changed, now blocks listener until complete clearing.
 
 - [Install](#install--update)
 - [Learn](#learn):
