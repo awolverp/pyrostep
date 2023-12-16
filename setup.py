@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     author="aWolver",
     url="https://github.com/awolverp/pyrostep",
-    packages=find_packages("pyrostep", exclude=["examples"]),
+    packages=find_packages(".", exclude=["examples"]),
     requires=["pyrogram"],
     keywords=[
         "pyrostep",
