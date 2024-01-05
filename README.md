@@ -15,11 +15,12 @@ Pyrostep helps you to use pyrogram:
 #### **Updated to 2.10.8**
 - **connection.session_max_retries** completely changed.
 
-- [Install](#install--update)
-- [Learn](#learn):
+#### Content
+- [**Install**](#install--update)
+- [**Learn**](#learn):
     - [step handling](#step-handling)
     - [wait_for method](#wait_for-method)
-- [Other](#other-packages-and-shortcuts)
+- [**Other**](#other-packages-and-shortcuts)
 
 # install / update
 ```bash
