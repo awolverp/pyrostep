@@ -1,18 +1,20 @@
 from . import steps
 from pyrogram.client import Client
 
-async def _register_next_step(_, id, _next, store = None):
+
+async def _register_next_step(_, id, _next, store=None):
     await steps.register_next_step(id, _next, store)
 
-async def _unregister_steps(_, id, store = None):
+
+async def _unregister_steps(_, id, store=None):
     await steps.unregister_steps(id, store)
 
-async def _wait_for(_, id, timeout = None, store = None):
+
+async def _wait_for(_, id, timeout=None, store=None):
     return await steps.wait_for(id, timeout, store)
 
-def install(
-    register_next_step=True, unregister_steps=True, wait_for=True, listen=True
-):
+
+def install(register_next_step=True, unregister_steps=True, wait_for=True, listen=True):
     """
     install adds new functions on pyrogram client.
 
@@ -25,7 +27,7 @@ def install(
 
         cli = Client()
         cli.listen()
-    
+
     Which functions can be install?
     - register_next_step ( -> pyrogram.Client.register_next_step )
     - unregister_steps ( -> pyrogram.Client.unregister_steps )
@@ -41,4 +43,3 @@ def install(
 
     for k, v in filter(lambda k: k[1][0] is True, funcs.items()):
         setattr(Client, k, v[1])
-    

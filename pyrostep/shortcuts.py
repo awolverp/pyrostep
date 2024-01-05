@@ -1,17 +1,15 @@
 from pyrogram.types import (
-    ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
 )
-from pyrogram.client import (
-    Client
-)
-from pyrogram.enums import (
-    ChatMemberStatus
-)
-from pyrogram.errors import (
-    UserNotParticipant
-)
+from pyrogram.client import Client
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import UserNotParticipant
 
 import typing
+
 
 def split_list(lst: list, rows: int) -> list:
     """
@@ -20,24 +18,27 @@ def split_list(lst: list, rows: int) -> list:
     Parameters:
         lst (``list``):
             list.
-        
+
         rows (``int``):
             count of rows.
-    
+
     Example:
         >>> split_list([1, 2, 3, 4, 5, 6], 2) # [[1, 2], [3, 4], [5, 6]]
         >>> split_list([1, 2, 3], 2) # [[1, 2], [3]]
     """
-    return [ lst[i:i+rows] for i in range(0, len(lst), rows) ]
+    return [lst[i : i + rows] for i in range(0, len(lst), rows)]
 
-def keyboard(lst: typing.List[typing.List[typing.List[str]]], **kwargs) -> ReplyKeyboardMarkup:
+
+def keyboard(
+    lst: typing.List[typing.List[typing.List[str]]], **kwargs
+) -> ReplyKeyboardMarkup:
     """
     keyboard creates ReplyKeyboardMarkup from your list.
 
     Parameters:
         lst (``list[list[list]]``):
             your list.
-        
+
         resize_keyboard (``bool``, *optional*):
             Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if
             there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of
@@ -69,16 +70,19 @@ def keyboard(lst: typing.List[typing.List[typing.List[str]]], **kwargs) -> Reply
         ]
         utils.keyboard(buttons)
     """
-    return ReplyKeyboardMarkup([ [button(*kb) for kb in line] for line in lst ], **kwargs)
+    return ReplyKeyboardMarkup([[button(*kb) for kb in line] for line in lst], **kwargs)
 
-def inlinekeyboard(lst: typing.List[typing.List[typing.List[str]]]) -> InlineKeyboardMarkup:
+
+def inlinekeyboard(
+    lst: typing.List[typing.List[typing.List[str]]],
+) -> InlineKeyboardMarkup:
     """
     inlinekeyboard creates InlineKeyboardMarkup from your list.
 
     Parameters:
         lst (``list[list[list]]``):
             your list.
-    
+
     Example:
         buttons = [
             [
@@ -90,23 +94,40 @@ def inlinekeyboard(lst: typing.List[typing.List[typing.List[str]]]) -> InlineKey
         ]
         utils.inlienkeyboard(buttons)
     """
-    return InlineKeyboardMarkup([ [inline_button(*kb) for kb in line] for line in lst ])
+    return InlineKeyboardMarkup([[inline_button(*kb) for kb in line] for line in lst])
 
-def button(text: str, value = None, _type: str = "request_contact") -> KeyboardButton:
+
+def button(text: str, value=None, _type: str = "request_contact") -> KeyboardButton:
     """
     button returns KeyboardButton
     """
-    return KeyboardButton(text) if value == None else KeyboardButton(text, **{_type:value})
+    return (
+        KeyboardButton(text)
+        if value is None
+        else KeyboardButton(text, **{_type: value})
+    )
 
-def inline_button(text: str, value = None, _type: str = "callback_data") -> InlineKeyboardButton:
+
+def inline_button(
+    text: str, value=None, _type: str = "callback_data"
+) -> InlineKeyboardButton:
     """
     inline_button returns InlineKeyboardButton
     """
-    return InlineKeyboardButton(text) if value == None else InlineKeyboardButton(text, **{_type:value})
+    return (
+        InlineKeyboardButton(text)
+        if value is None
+        else InlineKeyboardButton(text, **{_type: value})
+    )
+
 
 async def validation_channels(
-    app: Client, id: int, channels: typing.Iterable[typing.Union[int, str]],
-    invite_func: typing.Callable[[Client, int, typing.Iterable[typing.Union[int, str]]], typing.Coroutine] = None
+    app: Client,
+    id: int,
+    channels: typing.Iterable[typing.Union[int, str]],
+    invite_func: typing.Callable[
+        [Client, int, typing.Iterable[typing.Union[int, str]]], typing.Coroutine
+    ] = None,
 ) -> bool:
     """
     validation_channels checks user already in channels or not.
@@ -114,19 +135,19 @@ async def validation_channels(
     Parameters:
         app (`pyrogram.Client`):
             client.
-        
+
         id (`int | str`):
             user id or username.
-        
+
         channels (`list[int | str]`):
             list of channels id or username.
 
         invite_func (`(Client, int, list[int | str]) -> None`, `optional`):
             validation_channels calls it when user not member of channels. (before return False)
-    
+
     Returns:
         returns True if user already in channels, returns False otherwise.
-    
+
     Example::
 
         user_id = 56392019
@@ -138,18 +159,22 @@ async def validation_channels(
 
         async def invite(app, id, channels) -> None:
             print("User %d is not member of channels (%s)" % (id, str(channels)))
-        
+
         is_joined = await validation_channels(app, user_id, channels, invite_func=invite)
     """
     for ch in channels:
         try:
             status = await app.get_chat_member(ch, id)
         except UserNotParticipant:
-            if invite_func: await invite_func(app, id, channels)
+            if invite_func:
+                await invite_func(app, id, channels)
+
             return False
-        
+
         if status.status == ChatMemberStatus.LEFT:
-            if invite_func: await invite_func(app, id, channels)
+            if invite_func:
+                await invite_func(app, id, channels)
+
             return False
-    
+
     return True

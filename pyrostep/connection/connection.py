@@ -2,13 +2,12 @@ from pyrogram.connection import Connection
 from pyrogram.session import Session, auth
 
 import logging
-
-from pyrogram.connection import Connection
 import typing
 
 log = logging.getLogger(__name__)
 
-def connection_max_retries(max_retries:int=None) -> typing.Optional[int]:
+
+def connection_max_retries(max_retries: int = None) -> typing.Optional[int]:
     """
     Change connection max retries. (default 3)
 
@@ -18,19 +17,24 @@ def connection_max_retries(max_retries:int=None) -> typing.Optional[int]:
     Return:
         returns MAX_RETRIES if max_retries is None
     """
-    _attr = "MAX_RETRIES" if hasattr(Connection, "MAX_RETRIES") else "MAX_CONNECTION_ATTEMPTS"
+    _attr = (
+        "MAX_RETRIES"
+        if hasattr(Connection, "MAX_RETRIES")
+        else "MAX_CONNECTION_ATTEMPTS"
+    )
     if not isinstance(max_retries, int):
         return getattr(Connection, _attr)
 
     setattr(Connection, _attr, max_retries)
 
-def invoke_max_retries(max_retries:int=None) -> typing.Optional[int]:
+
+def invoke_max_retries(max_retries: int = None) -> typing.Optional[int]:
     """
     Change invoke max retries. (default 5)
 
     retries message:
         [...] Waiting for ... seconds before continuing (required by "...")
-    
+
     Return:
         returns MAX_RETRIES if max_retries is None
     """
@@ -39,17 +43,19 @@ def invoke_max_retries(max_retries:int=None) -> typing.Optional[int]:
 
     Session.MAX_RETRIES = max_retries
 
+
 def session_start_timeout(timeout: int = None) -> typing.Optional[int]:
     """
     Change start timeout. (default 1)
 
     Return:
-        returns START_TIMEOUT if timeout is None. 
+        returns START_TIMEOUT if timeout is None.
     """
     if not isinstance(timeout, int):
         return Session.START_TIMEOUT
 
     Session.START_TIMEOUT = timeout
+
 
 def session_max_retries(max_retries: int) -> None:
     """
@@ -58,4 +64,4 @@ def session_max_retries(max_retries: int) -> None:
     retries message:
         Connection failed! Trying again...
     """
-    auth.Auth.MAX_RETRIES = max_retries-1
+    auth.Auth.MAX_RETRIES = max_retries - 1

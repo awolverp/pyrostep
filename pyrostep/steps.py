@@ -7,8 +7,11 @@ from pyrogram.handlers import MessageHandler
 from pyrogram.filters import Filter
 from pyrogram.types import Update
 
+
 class MetaStore:
-    def set_item(self, key: int, value: typing.Union[asyncio.Future, typing.Callable]) -> None:
+    def set_item(
+        self, key: int, value: typing.Union[asyncio.Future, typing.Callable]
+    ) -> None:
         """
         Stores key-value.
         """
@@ -28,28 +31,35 @@ class MetaStore:
         """
         pass
 
+
 class _RootStore(MetaStore, dict):
     def __init__(self, *args, **kwargs) -> None:
         self._event = asyncio.Event()
         self._event.set()
         super().__init__(*args, **kwargs)
 
-    async def set_item(self, key: int, value: typing.Union[asyncio.Future, typing.Callable]) -> None:
+    async def set_item(
+        self, key: int, value: typing.Union[asyncio.Future, typing.Callable]
+    ) -> None:
         await self._event.wait()
         self[key] = value
-    
+
     async def pop_item(self, key: int) -> typing.Union[asyncio.Future, typing.Callable]:
         await self._event.wait()
         return self.pop(key)
-    
-    async def clear(self) -> typing.Iterable[typing.Union[asyncio.Future, typing.Callable]]:
+
+    async def clear(
+        self,
+    ) -> typing.Iterable[typing.Union[asyncio.Future, typing.Callable]]:
         try:
             await self._event.clear()
             return tuple(self.popitem() for i in range(len(self)))
         finally:
             await self._event.set()
 
-root = _RootStore() # type: MetaStore
+
+root = _RootStore()  # type: MetaStore
+
 
 def change_root_store(store: MetaStore) -> None:
     """
@@ -58,9 +68,14 @@ def change_root_store(store: MetaStore) -> None:
     global root
     root = store
 
+
 def listen(
-    app: _Client, store: MetaStore = None, exclude: typing.List[str] = None,
-    handler: typing.Any = MessageHandler, filters: Filter = None, group: int = 0
+    app: _Client,
+    store: MetaStore = None,
+    exclude: typing.List[str] = None,
+    handler: typing.Any = MessageHandler,
+    filters: Filter = None,
+    group: int = 0,
 ) -> None:
     """
     listen client for steps.
@@ -73,12 +88,20 @@ def listen(
         - `ChosenInlineResultHandler`
         - `EditedMessageHandler`
         - `InlineQueryHandler`
-    
+
     Example::
 
         app = Client(...)
         pyrostep.listen(app)
     """
+    if exclude is not None:
+        import warnings
+
+        warnings.warn(
+            "use 'filters' parameter instead of 'exclude', this parameter is deprecated and unusable. ",
+            category=DeprecationWarning,
+        )
+
     store = store or root
 
     async def _listen_wrapper(_c, _u):
@@ -87,23 +110,23 @@ def listen(
         try:
             fn = await store.pop_item(_u.from_user.id)
         except (KeyError, AttributeError):
-            
             try:
                 fn = await store.pop_item(_u.chat.id)
             except (KeyError, AttributeError):
                 pass
 
-        if not (fn is None):
+        if fn is not None:
             if isinstance(fn, asyncio.Future):
                 fn.set_result(_u)
                 return
-            
+
             await fn(_c, _u)
             return
-        
+
         raise ContinuePropagation
-    
+
     app.add_handler(handler(_listen_wrapper, filters), group=group)
+
 
 async def register_next_step(
     id: int, _next: typing.Any, store: MetaStore = None
@@ -116,11 +139,12 @@ async def register_next_step(
         async def step1(client, msg):
             # code ...
             register_next_step(msg.from_user.id, step2)
-        
+
         async def step2(client, msg):
             # code ...
     """
     await (store or root).set_item(id, _next)
+
 
 async def unregister_steps(id: int, store: MetaStore = None) -> None:
     """
@@ -136,6 +160,7 @@ async def unregister_steps(id: int, store: MetaStore = None) -> None:
         if isinstance(u, asyncio.Future):
             u.cancel("cancelled")
 
+
 async def _wait_future(id: int, timeout: float, store: MetaStore) -> Update:
     fn = asyncio.get_event_loop().create_future()
 
@@ -146,9 +171,8 @@ async def _wait_future(id: int, timeout: float, store: MetaStore) -> Update:
     finally:
         await unregister_steps(id, store)
 
-async def wait_for(
-    id: int, timeout: float = None, store: MetaStore = None
-) -> Update:
+
+async def wait_for(id: int, timeout: float = None, store: MetaStore = None) -> Update:
     """
     wait for update which comming from id.
 
@@ -162,11 +186,11 @@ async def wait_for(
                 answer: Message = await pyrostep.wait_for(message.from_user, timeout=20)
             except TimeoutError:
                 return
-            
+
             except asyncio.CancelledError:
-                # operation cancelled by `unregister_steps`
+                # operation was cancelled by `unregister_steps`
                 return
-            
+
             await answer.reply_text(f"Your Name Is: {answer.text}")
     """
     try:
@@ -174,6 +198,7 @@ async def wait_for(
     except asyncio.CancelledError as e:
         if str(e) == "cancelled":
             raise e from None
+
 
 async def clear(store: MetaStore = None) -> None:
     """

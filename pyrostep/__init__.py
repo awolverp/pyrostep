@@ -5,7 +5,13 @@ __author__ = "aWolver"
 __version__ = "2.10.10"
 
 __all__ = [
-    "change_root_store", "listen", "register_next_step", "unregister_steps", "wait_for", "clear", "shortcuts",
+    "change_root_store",
+    "listen",
+    "register_next_step",
+    "unregister_steps",
+    "wait_for",
+    "clear",
+    "shortcuts",
 ]
 
 from .steps import (
