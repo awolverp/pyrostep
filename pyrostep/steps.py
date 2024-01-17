@@ -1,5 +1,6 @@
 import asyncio
 import typing
+import functools
 
 from pyrogram.client import Client as _Client
 from pyrogram import ContinuePropagation
@@ -69,9 +70,54 @@ def change_root_store(store: MetaStore) -> None:
     root = store
 
 
+async def listening_handler(_c, _u, store: typing.Optional[MetaStore] = None):
+    """
+    listen function for steps.
+
+    If you aren't using plugins, use `.listen()` function.
+
+    supported handlers:
+        - `MessageHandler`
+        - `CallbackQueryHandler`
+        - `ChatJoinRequestHandler`
+        - `ChatMemberUpdatedHandler`
+        - `ChosenInlineResultHandler`
+        - `EditedMessageHandler`
+        - `InlineQueryHandler`
+
+    Example::
+
+        # plugin file
+        @Client.on_message()
+        async def listening(client, message):
+            await pyrostep.listening_handler(client, message)
+    """
+    store = store or root
+
+    fn = None
+
+    try:
+        fn = await root.pop_item(_u.from_user.id)
+    except (KeyError, AttributeError):
+        try:
+            fn = await root.pop_item(_u.chat.id)
+        except (KeyError, AttributeError):
+            pass
+
+    if fn is not None:
+        if isinstance(fn, asyncio.Future):
+            fn.set_result(_u)
+            return
+
+        await fn(_c, _u)
+        return
+
+    raise ContinuePropagation
+
+
 def listen(
     app: _Client,
-    store: MetaStore = None,
+    store: typing.Optional[MetaStore] = None,
     exclude: typing.List[str] = None,
     handler: typing.Any = MessageHandler,
     filters: Filter = None,
@@ -98,7 +144,7 @@ def listen(
         import warnings
 
         warnings.warn(
-            "use 'filters' parameter instead of 'exclude', this parameter is deprecated and unusable. ",
+            "use 'filters' parameter instead of 'exclude', this parameter is deprecated and un-used.",
             category=DeprecationWarning,
         )
 
@@ -129,7 +175,12 @@ def listen(
 
 
 async def register_next_step(
-    id: int, _next: typing.Any, store: MetaStore = None
+    id: int,
+    _next: typing.Any,
+    store: typing.Optional[MetaStore] = None,
+    *,
+    args: tuple = (),
+    kwargs: dict = {},
 ) -> None:
     """
     register next step for user/chat.
@@ -143,10 +194,13 @@ async def register_next_step(
         async def step2(client, msg):
             # code ...
     """
+    if args or kwargs:
+        _next = functools.partial(_next, *args, **kwargs)
+
     await (store or root).set_item(id, _next)
 
 
-async def unregister_steps(id: int, store: MetaStore = None) -> None:
+async def unregister_steps(id: int, store: typing.Optional[MetaStore] = None) -> None:
     """
     unregister steps for `id`.
 
@@ -172,7 +226,7 @@ async def _wait_future(id: int, timeout: float, store: MetaStore) -> Update:
         await unregister_steps(id, store)
 
 
-async def wait_for(id: int, timeout: float = None, store: MetaStore = None) -> Update:
+async def wait_for(id: int, timeout: float = None, store: typing.Optional[MetaStore] = None) -> Update:
     """
     wait for update which comming from id.
 
@@ -195,12 +249,11 @@ async def wait_for(id: int, timeout: float = None, store: MetaStore = None) -> U
     """
     try:
         return await _wait_future(id, timeout, store or root)
-    except asyncio.CancelledError as e:
-        if str(e) == "cancelled":
-            raise e from None
+    except asyncio.TimeoutError:
+        raise TimeoutError
 
 
-async def clear(store: MetaStore = None) -> None:
+async def clear(store: typing.Optional[MetaStore] = None) -> None:
     """
     Clears all registered key-value's.
 
@@ -208,4 +261,4 @@ async def clear(store: MetaStore = None) -> None:
     """
     async for i in (store or root).clear():
         if isinstance(i, asyncio.Future):
-            i.cancel("cancelled")
+            i.cancel()

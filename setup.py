@@ -1,6 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
-VERSION = "2.10.10"
+VERSION = "2.10.19"
 
 with open("README.md", "r") as f:
     desc = f.read()
@@ -13,8 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     author="aWolver",
     url="https://github.com/awolverp/pyrostep",
-    packages=find_packages(".", exclude=["examples"]),
-    requires=["pyrogram"],
+    packages=["pyrostep", "pyrostep.connection"],
     keywords=[
         "pyrostep",
         "pyrogram",

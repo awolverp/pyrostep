@@ -1,176 +1,202 @@
-# Pyrostep
+# pyrostep
+[![Downloads](https://static.pepy.tech/personalized-badge/pyrostep?period=total&units=abbreviation&left_color=red&right_color=grey&left_text=Downloads)](https://pepy.tech/project/pyrostep)
 
-[![Downloads](https://static.pepy.tech/personalized-badge/pyrostep?period=total&units=abbreviation&left_color=red&right_color=grey&left_text=Downloads)](https://pepy.tech/project/pyrostep) ![Python](https://img.shields.io/static/v1?label=Language&message=Python&color=blue&style=flat&logo=python) ![Pyrogram](https://img.shields.io/static/v1?label=Framework&message=Pyrogram&color=red&style=flat)
+You can implement conversation in your project based on pyrogram very easy with **pyrostep**.
 
-A Python library to handle steps in pyrogram framework.
+**Features**:
+- Full type hint
+- Support step handling
+- Support asking
+- Change core settings of pyrogram
 
-Pyrostep helps you to use pyrogram:
-- very easy step handling, waiting for answer, ...
-- change connection timeout, retries, etc.
-
-#### **Updated to 2.10.10**
-- **connection.connection_max_retries** AttributeError fixed.
-- **different loop error** fixed.
-
-#### **Updated to 2.10.8**
-- **connection.session_max_retries** completely changed.
-
-#### Content
-- [**Install**](#install--update)
-- [**Learn**](#learn):
-    - [step handling](#step-handling)
-    - [wait_for method](#wait_for-method)
-- [**Other**](#other-packages-and-shortcuts)
-
-# install / update
+**Installing**
 ```bash
-python3 -m pip install -U pyrostep
+pip3 install -U pyrostep
 ```
 
-# Learn
-to start with pyrostep, you have to do two steps:
-1. import pyrostep
-2. listen on client which you want
+**Content**
+- [tutorial](#tutorial)
+    - [step handling](#step-handling)
+    - [wait for method](#wait-for-method)
+    - [plugins](#plugins)
+- [shortcuts](#shortcuts)
+- [connection package](#connection-package)
 
+## Tutorial
+Use `pyrostep.listen()` to start listening on your client:
 ```python
+from pyrogram import Client
 import pyrostep
-# ...
-cli = Client(...)
-pyrostep.listen(cli)
-```
-
-- [**Learn step handling**](#step-handling)
-- [**Learn wait_for method**](#wait_for-method)
-
-### step handling
-
-step handling have two methods:
-- `pyrostep.register_next_step(...)`
-- `pyrostep.unregister_steps(...)`
-
-`register_next_step` registers next step, and `unregister_steps` removes step for user.
-
-see example: ( [see examples]() )
-```python
-# ...
-
-async def step1(client, msg):
-    await msg.reply(
-        "Send your name?"
-    )
-    pyrostep.register_next_step(
-        msg.from_user.id,
-        step2
-    )
-
-async def step2(client, msg):
-    await msg.reply(
-        f"Your name is {msg.text}"
-    )
 
 # ...
+
+client = Client("myaccount")
+pyrostep.listen(client)
 ```
 
-### wait_for method
+> [!NOTE]\
+> Always use `pyrostep.listen()` before adding your handlers.
 
-if you dont like step handling, can use this method.
+After that, we have two ways to make conversation: [wait_for method](#wait-for-method) or [step handling](#step-handling)
 
-see example: ( [see examples]() )
+### Wait for method
+In this way we can use `pyrostep.wait_for` function, that waits for an update (e.g message) from your target.
+
 ```python
+client = Client("myaccount")
+pyrostep.listen(client)
+
 # ...
 
-async def get_name(client, msg):
-    await msg.reply(
-        "Send your name?"
-    )
-    answer = await pyrostep.wait_for(
-        msg.from_user.id
-    )
-    await msg.reply(
-        f"Your name is {answer.text}"
-    )
+@client.on_message()
+async def get_name(_, message):
+    await message.reply("Send your name?")
+    
+    answer = await pyrostep.wait_for(message.from_user.id)
+    await message.reply(f"Your name is {answer.text}")
+```
+
+> [!TIP]\
+> You can specify how long it will wait with `timeout` parameter. see this example:
+
+```python
+client = Client("myaccount")
+pyrostep.listen(client)
 
 # ...
+
+@client.on_message()
+async def get_name(_, message):
+    await message.reply("Send your name?")
+
+    try:
+        answer = await pyrostep.wait_for(message.from_user.id, timeout=10)
+    except TimeoutError:
+        await message.reply("Timed out")
+    else:
+        await message.reply(f"Your name is {answer.text}")
 ```
 
-# Other packages and shortcuts
+### Step handling
+In this way we will use this functions:
+- `pyrostep.register_next_step()`
 
-## Connection
+We will specify a function that should process the next update from the target with `pyrostep.register_next_step()`.
 
-### `connection_max_retries` method:
+> [!IMPORTANT]\
+> In this way we cannot specify a timeout.
 
-*Change connection max retries. (default 3)*
-
-#### `invoke_max_retries` method:
-
-*Change invoke max retries. (default 5)*
-
-#### `session_start_timeout` method:
-
-*Change start timeout. (default 1)*
-
-#### `session_max_retries` method:
-
-*Change session max retries.*
-
-## Shortcuts
-import shortcuts:
 ```python
-from pyrostep import shortcuts
-```
+client = Client("myaccount")
+pyrostep.listen(client)
 
-Now see methods:
-
-`split_list` splites lst list:
-```python
->>> shortcuts.split_list([1, 2, 3, 4, 5, 6], 2)
-# [[1, 2], [3, 4], [5, 6]]
->>> shortcuts.split_list([1, 2, 3], 2)
-# [[1, 2], [3]]
-```
-
-`keyboard` creates ReplyKeyboardMarkup from your list:
-```python
-buttons = [
-    [
-        ["Top Left"], ["Top Right"]
-    ],
-    [
-        ["Bottom | Request Contact", True, "request_contact"]
-    ]
-]
-kb = shortcuts.keyboard(buttons)
-```
-
-`inlinekeyboard` creates InlineKeyboardMarkup from your list:
-```python
-buttons = [
-    [
-        ["Top Left", "data_1"], ["Top Right", "data_2"]
-    ],
-    [
-        ["Bottom", "Your URL", "url"]
-    ]
-]
-ikb = shortcuts.inlinekeyboard(buttons)
-```
-
-`validation_channels` checks user already in channels or not:
-```python
-user_id = 56392019
-channels = [-102792837, -10823823, 'channel_username']
-
-is_joined = await validation_channels(
-    app, user_id, channels
-)
 # ...
-async def invite(app, id, channels) -> None:
-    print(
-        f"User {id} is not member of channels ({channels})"
+
+@client.on_message()
+async def get_name(_, message):
+    await message.reply("Send your name?")
+    await pyrostep.register_next_step(
+        message.from_user.id, get_age
     )
 
-is_joined = await validation_channels(
-    app, user_id, channels,
-    invite_func=invite
-)
+async def get_age(_, message):
+    await message.reply("OK, Send your age?")
+    await pyrostep.register_next_step(
+        message.from_user.id,
+        say_info,
+        kwargs={"name": message.text}
+    )
+
+async def say_info(_, message, name: str = None):
+    await message.reply(f"Name: {name} - Age: {message.text}")
 ```
+
+### Plugins
+If you're using plugins in pyrogram, maybe you cannot use `pyrostep.listen()`, so you can use `pyrostep.listening_handler` function.
+
+How? there's a example:
+```python
+# plugin file
+from pyrogram import Client
+import pyrostep
+
+Client.on_message()
+async def stephandler(client, message):
+    await pyrostep.listening_handler(client, message)
+
+# your other handlers
+```
+
+> [!WARNING]\
+> We didn't test it completely.
+
+## shortcuts
+**pyrostep** have some shortcuts and shorthands for you.
+
+#### pyrostep.shortcuts.split_list()
+split_list splites your list.
+
+example:
+```python
+>>> from pyrostep import shortcuts
+>>> split_list([1, 2, 3, 4, 5, 6], 2)
+[[1, 2], [3, 4], [5, 6]]
+>>> split_list([1, 2, 3], 2)
+[[1, 2], [3]]
+```
+
+#### pyrostep.shortcuts.keyboard()
+keyboard creates ReplyKeyboardMarkup from your list.
+
+example:
+```python
+>>> from pyrostep import shortcuts
+>>> buttons = [
+...     [["Top Left"], ["Top Right"]],
+...     [["Bottom | Request Contact", True, "request_contact"]]
+... ]
+>>> shortcuts.keyboard(buttons)
+ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Top Left'), KeyboardButton(text='Top Right')], [KeyboardButton(text='Bottom | Request Contact', request_contact=True)]])
+```
+
+#### pyrostep.shortcuts.inlinekeyboard()
+inlinekeyboard creates InlineKeyboardMarkup from your list.
+
+example:
+```python
+>>> from pyrostep import shortcuts
+>>> buttons = [
+...     [["Top Left", "data_1"], ["Top Right", "data_2"]],
+...     [["Bottom", "Your URL", "url"]]
+... ]
+>>> shortcuts.inlinekeyboard(buttons)
+InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Top Left', callback_data='data_1'), InlineKeyboardButton(text='Top Right', callback_data='data_2')], [InlineKeyboardButton(text='Bottom', url='Your URL')]])
+```
+
+#### pyrostep.shortcuts.validation_channels()
+validation_channels checks user is already in channels or not.
+returns `True` if user is already in channels, returns `False` otherwise.
+
+example:
+```python
+>>> from pyrostep import shortcuts
+>>> user_id = 56392019
+>>> channels = [-10279279837, -10823827873, 'channel_username']
+>>> await validation_channels(app, user_id, channels)
+True
+```
+
+## connection package
+This package helps you to change *pyrogram connection* settings.
+
+#### pyrostep.connection.connection_max_retries()
+How many times does it try to connect (to proxy or telegram)?
+
+#### pyrostep.connection.invoke_max_retries()
+How many times does it try to invoke a method?
+
+#### pyrostep.connection.session_start_timeout()
+How many seconds to wait for connection?
+
+#### pyrostep.connection.session_max_retries()
+How many times does it try to authenticate?

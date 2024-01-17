@@ -60,6 +60,7 @@ def keyboard(
             The placeholder to be shown in the input field when the keyboard is active; 1-64 characters.
 
     Example::
+
         buttons = [
             [
                 ["Top Left"], ["Top Right"]
@@ -68,7 +69,7 @@ def keyboard(
                 ["Bottom | Request Contact", True, "request_contact"]
             ]
         ]
-        utils.keyboard(buttons)
+        keyboard(buttons)
     """
     return ReplyKeyboardMarkup([[button(*kb) for kb in line] for line in lst], **kwargs)
 
@@ -92,7 +93,7 @@ def inlinekeyboard(
                 ["Bottom", "Your URL", "url"]
             ]
         ]
-        utils.inlienkeyboard(buttons)
+        inlienkeyboard(buttons)
     """
     return InlineKeyboardMarkup([[inline_button(*kb) for kb in line] for line in lst])
 

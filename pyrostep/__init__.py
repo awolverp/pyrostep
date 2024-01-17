@@ -2,7 +2,7 @@
 A Python library to handle steps in pyrogram framework.
 """
 __author__ = "aWolver"
-__version__ = "2.10.10"
+__version__ = "2.10.19"
 
 __all__ = [
     "change_root_store",
