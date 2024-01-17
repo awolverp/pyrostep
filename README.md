@@ -114,7 +114,7 @@ async def say_info(_, message, name: str = None):
 ### Plugins
 If you're using plugins in pyrogram, maybe you cannot use `pyrostep.listen()`, so you can use `pyrostep.listening_handler` function.
 
-How? there's a example:
+How? there's an example:
 ```python
 # plugin file
 from pyrogram import Client
