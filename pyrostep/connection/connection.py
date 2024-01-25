@@ -1,5 +1,6 @@
-from pyrogram.connection import Connection
-from pyrogram.session import Session, auth
+import pyrogram.connection.connection
+import pyrogram.session.session
+import pyrogram.session.auth
 
 import logging
 import typing
@@ -7,7 +8,7 @@ import typing
 log = logging.getLogger(__name__)
 
 
-def connection_max_retries(max_retries: int = None) -> typing.Optional[int]:
+def connection_max_retries(max_retries: typing.Optional[int] = None) -> typing.Optional[int]:
     """
     Change connection max retries. (default 3)
 
@@ -19,16 +20,16 @@ def connection_max_retries(max_retries: int = None) -> typing.Optional[int]:
     """
     _attr = (
         "MAX_RETRIES"
-        if hasattr(Connection, "MAX_RETRIES")
+        if hasattr(pyrogram.connection.connection.Connection, "MAX_RETRIES")
         else "MAX_CONNECTION_ATTEMPTS"
     )
     if not isinstance(max_retries, int):
-        return getattr(Connection, _attr)
+        return getattr(pyrogram.connection.connection.Connection, _attr)
 
-    setattr(Connection, _attr, max_retries)
+    setattr(pyrogram.connection.connection.Connection, _attr, max_retries)
 
 
-def invoke_max_retries(max_retries: int = None) -> typing.Optional[int]:
+def invoke_max_retries(max_retries: typing.Optional[int] = None) -> typing.Optional[int]:
     """
     Change invoke max retries. (default 5)
 
@@ -39,12 +40,12 @@ def invoke_max_retries(max_retries: int = None) -> typing.Optional[int]:
         returns MAX_RETRIES if max_retries is None
     """
     if not isinstance(max_retries, int):
-        return Session.MAX_RETRIES
+        return pyrogram.session.session.Session.MAX_RETRIES
 
-    Session.MAX_RETRIES = max_retries
+    pyrogram.session.session.Session.MAX_RETRIES = max_retries  # type: ignore
 
 
-def session_start_timeout(timeout: int = None) -> typing.Optional[int]:
+def session_start_timeout(timeout: typing.Optional[int] = None) -> typing.Optional[int]:
     """
     Change start timeout. (default 1)
 
@@ -52,16 +53,19 @@ def session_start_timeout(timeout: int = None) -> typing.Optional[int]:
         returns START_TIMEOUT if timeout is None.
     """
     if not isinstance(timeout, int):
-        return Session.START_TIMEOUT
+        return pyrogram.session.session.Session.START_TIMEOUT
 
-    Session.START_TIMEOUT = timeout
+    pyrogram.session.session.Session.START_TIMEOUT = timeout  # type: ignore
 
 
-def session_max_retries(max_retries: int) -> None:
+def session_max_retries(max_retries: typing.Optional[int]) -> typing.Optional[int]:
     """
     Change session max retries.
 
     retries message:
         Connection failed! Trying again...
     """
-    auth.Auth.MAX_RETRIES = max_retries - 1
+    if not isinstance(max_retries, int):
+        return pyrogram.session.auth.Auth.MAX_RETRIES
+
+    pyrogram.session.auth.Auth.MAX_RETRIES = max_retries - 1  # type: ignore

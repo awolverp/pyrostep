@@ -29,9 +29,7 @@ def split_list(lst: list, rows: int) -> list:
     return [lst[i : i + rows] for i in range(0, len(lst), rows)]
 
 
-def keyboard(
-    lst: typing.List[typing.List[typing.List[str]]], **kwargs
-) -> ReplyKeyboardMarkup:
+def keyboard(lst: typing.List[typing.List[typing.List[str]]], **kwargs) -> ReplyKeyboardMarkup:
     """
     keyboard creates ReplyKeyboardMarkup from your list.
 
@@ -102,33 +100,24 @@ def button(text: str, value=None, _type: str = "request_contact") -> KeyboardBut
     """
     button returns KeyboardButton
     """
-    return (
-        KeyboardButton(text)
-        if value is None
-        else KeyboardButton(text, **{_type: value})
-    )
+    return KeyboardButton(text) if value is None else KeyboardButton(text, **{_type: value})
 
 
-def inline_button(
-    text: str, value=None, _type: str = "callback_data"
-) -> InlineKeyboardButton:
+def inline_button(text: str, value=None, _type: str = "callback_data") -> InlineKeyboardButton:
     """
     inline_button returns InlineKeyboardButton
     """
-    return (
-        InlineKeyboardButton(text)
-        if value is None
-        else InlineKeyboardButton(text, **{_type: value})
-    )
+    return InlineKeyboardButton(text) if value is None else InlineKeyboardButton(text, **{_type: value})
+
+
+_VF = typing.Callable[[Client, int, typing.Iterable[typing.Union[int, str]]], typing.Coroutine]
 
 
 async def validation_channels(
     app: Client,
     id: int,
     channels: typing.Iterable[typing.Union[int, str]],
-    invite_func: typing.Callable[
-        [Client, int, typing.Iterable[typing.Union[int, str]]], typing.Coroutine
-    ] = None,
+    invite_func: typing.Optional[_VF] = None,
 ) -> bool:
     """
     validation_channels checks user already in channels or not.

@@ -24,9 +24,7 @@ async def step_handling(_, msg: types.Message):
 
     await msg.reply("Ok, I made my choice, guess it:")
 
-    await pyrostep.register_next_step(
-        msg.from_user.id, user_choice, kwargs={"num": num}
-    )
+    await pyrostep.register_next_step(msg.from_user.id, user_choice, kwargs={"num": num})
 
 
 async def user_choice(_, msg: types.Message, num: int = None):
@@ -35,23 +33,17 @@ async def user_choice(_, msg: types.Message, num: int = None):
     except ValueError:
         await msg.reply("Please send number!")
         # loop on this step
-        await pyrostep.register_next_step(
-            msg.from_user.id, user_choice, kwargs={"num": num}
-        )
+        await pyrostep.register_next_step(msg.from_user.id, user_choice, kwargs={"num": num})
         return
 
     if choose == num:
         await msg.reply("Oh you guess my choice! you win!")
         return
 
-    await msg.reply(
-        "No, Your choice is %s, try again:" % ("small", "big")[choose > num]
-    )
+    await msg.reply("No, Your choice is %s, try again:" % ("small", "big")[choose > num])
 
     # loop on this step
-    await pyrostep.register_next_step(
-        msg.from_user.id, user_choice, kwargs={"num": num}
-    )
+    await pyrostep.register_next_step(msg.from_user.id, user_choice, kwargs={"num": num})
 
 
 """ Ask Handling Example """
@@ -76,9 +68,7 @@ async def ask_handling(_, msg: types.Message):
             await msg.reply("Oh you guess my choice! you win!")
             break
 
-        await msg.reply(
-            "No, Your choice is %s, try again:" % ("small", "big")[choose > num]
-        )
+        await msg.reply("No, Your choice is %s, try again:" % ("small", "big")[choose > num])
 
 
 async def main():

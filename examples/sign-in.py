@@ -15,8 +15,7 @@ VALID_PASSWORD = "none"
 @app.on_message(filters.command("start"))
 async def start(_, msg: types.Message):
     await msg.reply(
-        "Hi Welcome To My Pyrostep test.\n"
-        "Send /step to see step handling, or send /ask to see ask handling."
+        "Hi Welcome To My Pyrostep test.\n" "Send /step to see step handling, or send /ask to see ask handling."
     )
 
 
@@ -40,9 +39,7 @@ async def get_username(_, msg: types.Message):
 
     await msg.reply("🏦 And password? (cancel with /cancel)")
 
-    await app.register_next_step(
-        msg.from_user.id, get_password, kwargs={"username": username}
-    )
+    await app.register_next_step(msg.from_user.id, get_password, kwargs={"username": username})
 
 
 async def get_password(_, msg: types.Message, username: str = None):

@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "2.10.19"
+VERSION = "2.10.21"
 
 with open("README.md", "r") as f:
     desc = f.read()
@@ -24,9 +24,10 @@ setup(
         "plugin",
         "pyrogram connection",
     ],
-    license="GPLv2",
+    license="MIT",
+    license_files=["LICENSE"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "License :: OSI Approved :: MIT License",
     ],
 )

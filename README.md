@@ -39,8 +39,10 @@ pyrostep.listen(client)
 
 After that, we have two ways to make conversation: [wait_for method](#wait-for-method) or [step handling](#step-handling)
 
+-----
+
 ### Wait for method
-In this way we can use `pyrostep.wait_for` function, that waits for an update (e.g message) from your target.
+⏰ In this way we can use `pyrostep.wait_for` function, that waits for an update (e.g message) from your target.
 
 ```python
 client = Client("myaccount")
@@ -77,8 +79,13 @@ async def get_name(_, message):
         await message.reply(f"Your name is {answer.text}")
 ```
 
+🔗 **Related functions:**
+- `clear()`: remove all registered steps (and cancels all wait_for's).
+
+------
+
 ### Step handling
-In this way we will use this functions:
+🎯 In this way we will use this functions:
 - `pyrostep.register_next_step()`
 
 We will specify a function that should process the next update from the target with `pyrostep.register_next_step()`.
@@ -111,8 +118,14 @@ async def say_info(_, message, name: str = None):
     await message.reply(f"Name: {name} - Age: {message.text}")
 ```
 
+🔗 **Related functions:**
+- `unregister_steps(id)`: remove registered step for *id*.
+- `clear()`: remove all registered steps (and cancels all wait_for's).
+
+-------
+
 ### Plugins
-If you're using plugins in pyrogram, maybe you cannot use `pyrostep.listen()`, so you can use `pyrostep.listening_handler` function.
+📁 If you're using plugins in pyrogram, maybe you cannot use `pyrostep.listen()`, so you can use `pyrostep.listening_handler` function.
 
 How? there's an example:
 ```python
@@ -130,8 +143,8 @@ async def stephandler(client, message):
 > [!WARNING]\
 > We didn't test it completely.
 
-## shortcuts
-**pyrostep** have some shortcuts and shorthands for you.
+## Shortcuts
+✂️ **pyrostep** have some shortcuts and shorthands for you.
 
 #### pyrostep.shortcuts.split_list()
 split_list splites your list.
@@ -144,6 +157,7 @@ example:
 >>> split_list([1, 2, 3], 2)
 [[1, 2], [3]]
 ```
+
 
 #### pyrostep.shortcuts.keyboard()
 keyboard creates ReplyKeyboardMarkup from your list.
@@ -189,14 +203,39 @@ True
 ## connection package
 This package helps you to change *pyrogram connection* settings.
 
+> [!NOTE]\
+> All of these functions should be used before importing pyrogram
+
 #### pyrostep.connection.connection_max_retries()
 How many times does it try to connect (to proxy or telegram)?
+
+-----
 
 #### pyrostep.connection.invoke_max_retries()
 How many times does it try to invoke a method?
 
+-----
+
 #### pyrostep.connection.session_start_timeout()
 How many seconds to wait for connection?
 
+-----
+
 #### pyrostep.connection.session_max_retries()
 How many times does it try to authenticate?
+
+-----
+
+Example:
+```python
+from pyrostep import connection
+connection.connection_max_retries(3)
+connection.invoke_max_retries(3)
+connection.session_start_timeout(20)
+connection.session_max_retries(2)
+
+from pyrogram import Client
+# code ...
+```
+
+

@@ -2,7 +2,7 @@
 A Python library to handle steps in pyrogram framework.
 """
 __author__ = "aWolver"
-__version__ = "2.10.19"
+__version__ = "2.10.21"
 
 __all__ = [
     "change_root_store",
@@ -21,7 +21,7 @@ from .steps import (
     register_next_step as register_next_step,
     unregister_steps as unregister_steps,
     wait_for as wait_for,
-    clear as clear,
+    clear as clear
 )
 
 from . import (
@@ -29,5 +29,4 @@ from . import (
     connection as connection,
 )
 
-from ._idle import safe_idle as safe_idle
 from ._install import install as install
