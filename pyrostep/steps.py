@@ -1,12 +1,11 @@
 import asyncio
 import typing
 import functools
+import cachebox
 
 from pyrogram.client import Client as _Client
-from pyrogram import ContinuePropagation
+from pyrogram import filters, types, ContinuePropagation
 from pyrogram.handlers.message_handler import MessageHandler
-from pyrogram.filters import Filter
-from pyrogram.types import Update
 
 
 _MT = typing.Union[asyncio.Future, typing.Callable]
@@ -34,27 +33,19 @@ class MetaStore:
         raise NotImplementedError
 
 
-class _RootStore(MetaStore, dict):
-    def __init__(self, *args, **kwargs) -> None:
-        self._event = asyncio.Event()
-        self._event.set()
-        super().__init__(*args, **kwargs)
+class _RootStore(MetaStore):
+    def __init__(self) -> None:
+        self.cache = cachebox.Cache(0)
 
     async def set_item(self, key: int, value: _MT) -> None:
-        await self._event.wait()
-        self[key] = value
+        self.cache[key] = value
 
     async def pop_item(self, key: int) -> _MT:
-        await self._event.wait()
-        return self.pop(key)
+        return self.cache.pop(key)
 
     async def clear(self) -> typing.AsyncGenerator[_MT, None]:
-        try:
-            self._event.clear()
-            for k in tuple(self.keys()):
-                yield self.pop(k)
-        finally:
-            self._event.set()
+        for k in self.cache.keys():
+            yield self.cache.pop(k)
 
 
 root = _RootStore()
@@ -117,7 +108,7 @@ def listen(
     app: _Client,
     store: typing.Optional[MetaStore] = None,
     handler: typing.Any = MessageHandler,
-    filters: typing.Optional[Filter] = None,
+    filters: typing.Optional[filters.Filter] = None,
     group: int = 0,
 ) -> None:
     """
@@ -204,7 +195,7 @@ async def unregister_steps(id: int, store: typing.Optional[MetaStore] = None) ->
             u.cancel("cancelled")
 
 
-async def _wait_future(id: int, timeout: typing.Optional[float], store: MetaStore) -> Update:
+async def _wait_future(id: int, timeout: typing.Optional[float], store: MetaStore) -> types.Update:
     fn = asyncio.get_event_loop().create_future()
 
     await store.set_item(id, fn)
@@ -215,7 +206,7 @@ async def _wait_future(id: int, timeout: typing.Optional[float], store: MetaStor
         await unregister_steps(id, store)
 
 
-async def wait_for(id: int, timeout: typing.Optional[float] = None, store: typing.Optional[MetaStore] = None) -> Update:
+async def wait_for(id: int, timeout: typing.Optional[float] = None, store: typing.Optional[MetaStore] = None) -> types.Update:
     """
     wait for update which comming from id.
 

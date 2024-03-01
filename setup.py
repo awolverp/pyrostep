@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "2.10.21"
+VERSION = "2.11.21"
 
 with open("README.md", "r") as f:
     desc = f.read()
@@ -23,6 +23,9 @@ setup(
         "pyrogram plugin",
         "plugin",
         "pyrogram connection",
+    ],
+    requires=[
+        "cachebox"
     ],
     license="MIT",
     license_files=["LICENSE"],
